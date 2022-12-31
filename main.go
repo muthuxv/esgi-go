@@ -1,11 +1,13 @@
 package main
 
 import (
-	"esgi-go/payment"
-	"esgi-go/product"
 	"log"
 	"os"
 
+	"github.com/muthuxv/esgi-go/payment"
+	"github.com/muthuxv/esgi-go/product"
+
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -22,8 +24,8 @@ func main() {
 	}
 
 	// Migrate the schema
-	db.AutoMigrate(&product & Product{})
-	db.AutoMigrate(&payment & Payment{})
+	db.AutoMigrate(&product.Product{})
+	db.AutoMigrate(&payment.Payment{})
 
 	productRepository := product.NewProductRepository(db)
 	productService := product.NewProductService(productRepository)
