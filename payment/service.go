@@ -34,10 +34,9 @@ func (s *service) FetchByID(id int) (Payment, error) {
 
 func (s *service) Create(input InputPayment) (Payment, error) {
 	var payment Payment
-	payment.ProductID = input.ProductID
-	payment.PricePaid = input.PricePaid
+	var productName string = input.ProductName
 
-	newPayment, err := s.repository.Create(payment)
+	newPayment, err := s.repository.Create(productName)
 	if err != nil {
 		return payment, err
 	}

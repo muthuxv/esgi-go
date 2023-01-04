@@ -17,7 +17,7 @@ import (
 func main() {
 	dbURL := os.Getenv("DB_URL")
 	if dbURL == "" {
-		dbURL = "user:password@tcp(127.0.0.1:3306)/go-esgi?charset=utf8mb4&parseTime=True&loc=Local"
+		dbURL = "user:password@tcp(127.0.0.1:3306)/go-esgi?charset=utf8mb4&parseTime=true&loc=Local"
 	}
 
 	db, err := gorm.Open(mysql.Open(dbURL), &gorm.Config{})
