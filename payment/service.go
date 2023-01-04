@@ -1,9 +1,11 @@
 package payment
 
+import "github.com/muthuxv/esgi-go/product"
+
 type Service interface {
 	FetchAll() ([]Payment, error)
 	FetchByID(id int) (Payment, error)
-	Create(inputPayment Payment) (Payment, error)
+	Create(inputProduct product.Product) (Payment, error)
 	Update(id int, payment Payment) (Payment, error)
 	Delete(id int) error
 	Stream() (<-chan Payment, error)
@@ -33,17 +35,16 @@ func (s *service) FetchByID(id int) (Payment, error) {
 	return payment, nil
 }
 
-func (s *service) Create(inputPayment Payment) (Payment, error) {
-	var payment Payment
-	payment.ProductID = inputPayment.ProductID
-	payment.PricePaid = inputPayment.PricePaid
-
-	newPayment, err := s.repository.Create(payment)
+func (s *service) Create(inputProduct product.Product) (Payment, error) {
+	payment := Payment{
+		ProductID: inputProduct.ID,
+		PricePaid: inputProduct.Price,
+	}
+	payment, err := s.repository.Create(payment)
 	if err != nil {
 		return payment, err
 	}
-
-	return newPayment, nil
+	return payment, nil
 }
 
 func (s *service) Update(id int, inputPayment Payment) (Payment, error) {

@@ -1,9 +1,14 @@
 package product
 
+import (
+	"fmt"
+	"strconv"
+)
+
 type Service interface {
 	FetchAll() ([]Product, error)
 	FetchByID(id int) (Product, error)
-	Create(inputProduct Product) (Product, error)
+	Create(name string, price float64) (Product, error)
 	Update(id int, product Product) (Product, error)
 	Delete(id int) error
 }
@@ -32,17 +37,18 @@ func (s *service) FetchByID(id int) (Product, error) {
 	return product, nil
 }
 
-func (s *service) Create(inputProduct Product) (Product, error) {
-	var product Product
-	product.Name = inputProduct.Name
-	product.Price = inputProduct.Price
-
-	newProduct, err := s.repository.Create(product)
+func (s *service) Create(name string, price float64) (Product, error) {
+	price, err := strconv.ParseFloat(fmt.Sprintf("%.2f", price), 64)
+	product := Product{
+		Name:  name,
+		Price: price,
+	}
+	fmt.Println(product)
+	product, err = s.repository.Create(product)
 	if err != nil {
 		return product, err
 	}
-
-	return newProduct, nil
+	return product, nil
 }
 
 func (s *service) Update(id int, inputProduct Product) (Product, error) {
