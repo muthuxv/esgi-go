@@ -42,17 +42,18 @@ func main() {
 	r := gin.Default()
 	api := r.Group("/api")
 
-	api.POST("/product", productHAndler.Create)
+	api.POST("/createProduct", productHAndler.Create)
 	api.GET("/products", productHAndler.FetchAll)
 	api.GET("/product/:id", productHAndler.FetchById)
-	api.PUT("/product/:id", productHAndler.Update)
-	api.DELETE("/product/:id", productHAndler.Delete)
+	api.PUT("/updateProduct/:id", productHAndler.Update)
+	api.DELETE("/deleteProduct/:id", productHAndler.Delete)
 
-	api.POST("/payment", paymentHandler.Create)
+	api.POST("/createPayment", paymentHandler.Create)
 	api.GET("/payments", paymentHandler.FetchAll)
 	api.GET("/payment/:id", paymentHandler.FetchById)
-	api.PUT("/payment/:id", paymentHandler.Update)
-	api.DELETE("/payment/:id", paymentHandler.Delete)
+	api.PUT("/updatePayment/:id", paymentHandler.Update)
+	api.DELETE("/deletePayment/:id", paymentHandler.Delete)
+
 	api.GET("/stream/payment", paymentHandler.Stream)
 
 	r.Run(":8080")
