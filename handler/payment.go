@@ -1,19 +1,26 @@
 package handler
 
 import (
+	"io"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	broadcast "github.com/muthuxv/esgi-go/channels"
 	"github.com/muthuxv/esgi-go/payment"
 )
 
 type paymentHandler struct {
 	paymentService payment.Service
+	broadcast      broadcast.Broadcaster
 }
 
-func NewPaymentHandler(paymentService payment.Service) *paymentHandler {
-	return &paymentHandler{paymentService}
+type Message struct {
+	Text string
+}
+
+func NewPaymentHandler(paymentService payment.Service, broadcast broadcast.Broadcaster) *paymentHandler {
+	return &paymentHandler{paymentService, broadcast}
 }
 
 func (ph *paymentHandler) Create(c *gin.Context) {
@@ -30,7 +37,7 @@ func (ph *paymentHandler) Create(c *gin.Context) {
 		return
 	}
 
-	newTask, err := ph.paymentService.Create(input)
+	newPayment, err := ph.paymentService.Create(input)
 	if err != nil {
 		response := &Response{
 			Success: false,
@@ -41,16 +48,17 @@ func (ph *paymentHandler) Create(c *gin.Context) {
 		return
 	}
 
+	ph.broadcast.Submit(Message{Text: "New payment created"})
 	response := &Response{
 		Success: true,
 		Message: "New payment created",
-		Data:    newTask,
+		Data:    newPayment,
 	}
 	c.JSON(http.StatusCreated, response)
 }
 
 func (ph *paymentHandler) FetchAll(c *gin.Context) {
-	tasks, err := ph.paymentService.FetchAll()
+	payments, err := ph.paymentService.FetchAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, &Response{
 			Success: false,
@@ -62,7 +70,7 @@ func (ph *paymentHandler) FetchAll(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Data:    tasks,
+		Data:    payments,
 	})
 }
 
@@ -128,6 +136,8 @@ func (ph *paymentHandler) Update(c *gin.Context) {
 		return
 	}
 
+	ph.broadcast.Submit(Message{Text: "New payment updated"})
+
 	response := &Response{
 		Success: true,
 		Message: "New payment created",
@@ -159,6 +169,28 @@ func (ph *paymentHandler) Delete(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &Response{
 		Success: true,
-		Message: "Task successfully deleted",
+		Message: "Payment successfully deleted",
+	})
+}
+
+func (ph *paymentHandler) Stream(c *gin.Context) {
+	listener := make(chan interface{})
+	ph.broadcast.Register(listener)
+	defer ph.broadcast.Unregister(listener)
+
+	clientGone := c.Request.Context().Done()
+	c.Stream(func(w io.Writer) bool {
+		select {
+		case <-clientGone:
+			return false
+		case message := <-listener:
+			serviceMsg, ok := message.(Message)
+			if !ok {
+				c.SSEvent("message", message)
+				return false
+			}
+			c.SSEvent("message", serviceMsg.Text)
+			return true
+		}
 	})
 }
