@@ -10,9 +10,8 @@ type Repository interface {
 	GetAll() ([]Payment, error)
 	GetByID(id int) (Payment, error)
 	Create(payment Payment) (Payment, error)
-	Update(id int, payment Payment) (Payment, error)
+	Update(id int, inputPayment InputPayment) (Payment, error)
 	Delete(id int) error
-	Stream() (<-chan Payment, error)
 }
 
 type repository struct {
@@ -49,7 +48,7 @@ func (r *repository) Create(payment Payment) (Payment, error) {
 	return payment, nil
 }
 
-func (r *repository) Update(id int, inputPayment Payment) (Payment, error) {
+func (r *repository) Update(id int, inputPayment InputPayment) (Payment, error) {
 	payment, err := r.GetByID(id)
 	if err != nil {
 		return Payment{}, err
@@ -76,8 +75,4 @@ func (r *repository) Delete(id int) error {
 		return errors.New("Payment not found")
 	}
 	return nil
-}
-
-func (r *repository) Stream() (<-chan Payment, error) {
-	return nil, nil
 }

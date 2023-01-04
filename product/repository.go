@@ -10,7 +10,7 @@ type Repository interface {
 	GetAll() ([]Product, error)
 	GetByID(id int) (Product, error)
 	Create(product Product) (Product, error)
-	Update(id int, product Product) (Product, error)
+	Update(id int, inputProduct InputProduct) (Product, error)
 	Delete(id int) error
 }
 
@@ -41,14 +41,20 @@ func (r *repository) GetByID(id int) (Product, error) {
 }
 
 func (r *repository) Create(product Product) (Product, error) {
-	err := r.db.Create(&product).Error
-	if err != nil {
-		return product, err
+	uniq := r.db.Where(&Product{Name: product.Name}).First(&product).Error
+	if uniq != nil {
+		err := r.db.Create(&product).Error
+		if err != nil {
+			return product, err
+		}
+	} else {
+		return product, errors.New("name product already exist")
 	}
+
 	return product, nil
 }
 
-func (r *repository) Update(id int, inputProduct Product) (Product, error) {
+func (r *repository) Update(id int, inputProduct InputProduct) (Product, error) {
 	product, err := r.GetByID(id)
 	if err != nil {
 		return Product{}, err

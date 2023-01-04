@@ -3,8 +3,8 @@ package product
 type Service interface {
 	FetchAll() ([]Product, error)
 	FetchByID(id int) (Product, error)
-	Create(inputProduct Product) (Product, error)
-	Update(id int, product Product) (Product, error)
+	Create(input InputProduct) (Product, error)
+	Update(id int, inputProduct InputProduct) (Product, error)
 	Delete(id int) error
 }
 
@@ -32,10 +32,10 @@ func (s *service) FetchByID(id int) (Product, error) {
 	return product, nil
 }
 
-func (s *service) Create(inputProduct Product) (Product, error) {
+func (s *service) Create(input InputProduct) (Product, error) {
 	var product Product
-	product.Name = inputProduct.Name
-	product.Price = inputProduct.Price
+	product.Name = input.Name
+	product.Price = input.Price
 
 	newProduct, err := s.repository.Create(product)
 	if err != nil {
@@ -45,8 +45,8 @@ func (s *service) Create(inputProduct Product) (Product, error) {
 	return newProduct, nil
 }
 
-func (s *service) Update(id int, inputProduct Product) (Product, error) {
-	uProduct, err := s.repository.Update(id, inputProduct)
+func (s *service) Update(id int, input InputProduct) (Product, error) {
+	uProduct, err := s.repository.Update(id, input)
 	if err != nil {
 		return uProduct, err
 	}

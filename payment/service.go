@@ -3,10 +3,9 @@ package payment
 type Service interface {
 	FetchAll() ([]Payment, error)
 	FetchByID(id int) (Payment, error)
-	Create(inputPayment Payment) (Payment, error)
-	Update(id int, payment Payment) (Payment, error)
+	Create(input InputPayment) (Payment, error)
+	Update(id int, inputPayment InputPayment) (Payment, error)
 	Delete(id int) error
-	Stream() (<-chan Payment, error)
 }
 
 type service struct {
@@ -33,10 +32,10 @@ func (s *service) FetchByID(id int) (Payment, error) {
 	return payment, nil
 }
 
-func (s *service) Create(inputPayment Payment) (Payment, error) {
+func (s *service) Create(input InputPayment) (Payment, error) {
 	var payment Payment
-	payment.ProductID = inputPayment.ProductID
-	payment.PricePaid = inputPayment.PricePaid
+	payment.ProductID = input.ProductID
+	payment.PricePaid = input.PricePaid
 
 	newPayment, err := s.repository.Create(payment)
 	if err != nil {
@@ -46,8 +45,8 @@ func (s *service) Create(inputPayment Payment) (Payment, error) {
 	return newPayment, nil
 }
 
-func (s *service) Update(id int, inputPayment Payment) (Payment, error) {
-	uPayment, err := s.repository.Update(id, inputPayment)
+func (s *service) Update(id int, input InputPayment) (Payment, error) {
+	uPayment, err := s.repository.Update(id, input)
 	if err != nil {
 		return uPayment, err
 	}
@@ -60,12 +59,4 @@ func (s *service) Delete(id int) error {
 		return err
 	}
 	return nil
-}
-
-func (s *service) Stream() (<-chan Payment, error) {
-	payments, err := s.repository.Stream()
-	if err != nil {
-		return nil, err
-	}
-	return payments, nil
 }
