@@ -137,7 +137,7 @@ func (ph *productHandler) Update(c *gin.Context) {
 
 	response := &Response{
 		Success: true,
-		Message: "New product created",
+		Message: "New product updated",
 		Data:    uProduct,
 	}
 	c.JSON(http.StatusCreated, response)
